@@ -28,14 +28,14 @@
 </template>
 
 <script>
-  export default {
-    name: 'FooterGuide',
-    methods: {
-      goTo(path) {
-        this.$router.replace(path)
-      }
+export default {
+  name: 'FooterGuide',
+  methods: {
+    goTo (path) {
+      this.$router.replace(path)
     }
   }
+}
 </script>
 
 <style lang="stylus" rel="stylesheet/stylus">

@@ -33,12 +33,12 @@
                 <input type="text" maxlength="8" placeholder="密码" v-else v-model="pwd">
                 <div class="switch_button off" :class="showPwd?'on':'off'" @click="showPwd=!showPwd">
                   <div class="switch_circle" :class="{right:showPwd}"></div>
-                  <span class="switch_text">{{showPwd?'abc':''}}</span>
+                  <span class="switch_text">{{showPwd?'显示':''}}</span>
                 </div>
               </section>
               <section class="login_message">
                 <input type="text" maxlength="11" placeholder="验证码" v-model="captcha">
-                <img class="get_verification" src="./images/captcha.svg" alt="captcha">
+                <img class="get_verification" src="http://localhost:4000/captcha" alt="captcha" @click="getCaptcha" ref="captcha">
               </section>
             </section>
           </div>
@@ -55,83 +55,121 @@
 </template>
 
 <script>
-  import AlertTip from '../../components/AlertTip/AlertTip'
-  export default {
-    name: 'Login',
-    components: {AlertTip},
-    data() {
-      return{
-        loginWay : true,    //true代表短信登录，false代表手机登录
-        computeTime: 0,  //计时的时间
-        showPwd: false,  //是否显示密码
-        phone: '',  //手机号
-        pwd: '',   //密码
-        code: '',  //短信验证码
-        name: '',   //手机/邮箱/用户名
-        captcha: '',  //图形验证码
-        alertText: '',  //提示文本
-        alertShow: false,  //是否显示提示框
+import AlertTip from '../../components/AlertTip/AlertTip'
+import {reqSendCode, reqPwdLogin, reqSmslogin} from '../../api'
+export default {
+  name: 'Login',
+  components: {AlertTip},
+  data () {
+    return {
+      loginWay: true, // true代表短信登录，false代表手机登录
+      computeTime: 0, // 计时的时间
+      showPwd: false, // 是否显示密码
+      phone: '', // 手机号
+      pwd: '', // 密码
+      code: '', // 短信验证码
+      name: '', // 手机/邮箱/用户名
+      captcha: '', // 图形验证码
+      alertText: '', // 提示文本
+      alertShow: false, // 是否显示提示框
+
+    }
+  },
+  computed: {
+    rightPhone () {
+      return /^1\d{10}$/.test(this.phone)
+    }
+  },
+  methods: {
+    // 异步获取短信验证码
+    async getCode () {
+      // 启动倒计时
+      if (this.computeTime === 0) {
+        this.computeTime = 30
+        this.intervalId = setInterval(() => {
+          this.computeTime--
+          if (this.computeTime <= 0) {
+            clearInterval(this.intervalId)
+          }
+        }, 1000)
+        // 发送ajax请求   向指定手机号发送验证码短信
+        const result = await reqSendCode(this.phone)
+        if (result.code === 1) {
+          this.showAlert(result.msg)
+          if (this.computeTime) {
+            this.computeTime = 0
+            clearInterval(this.intervalId)
+            this.intervalId = undefined
+          }
+        }
       }
     },
-    computed: {
-      rightPhone () {
-        return /^1\d{10}$/.test(this.phone)
+    closeTip () {
+      this.alertShow = false
+      this.alertText = ''
+    },
+    showAlert (alertText) {
+      this.alertShow = true
+      this.alertText = alertText
+    },
+    // 异步登录
+    async login () {
+      // 前台表单验证
+      let result
+      if (this.loginWay) { // 短信登陆
+        const {rightPhone, phone, code} = this
+        if (!rightPhone) {
+          // 提示手机号不正确
+          this.showAlert('手机号不正确')
+          return
+        } else if (!/^\d{6}$/.test(code)) {
+          // 提示验证码不正确
+          this.showAlert('验证码不正确')
+          return
+        }
+        result = await reqSmslogin({phone, code})
+      } else { // 密码登陆
+        const {name, pwd, captcha} = this
+        if (!this.name) {
+          // 提示用户名必须有
+          this.showAlert('提示用户名必须有')
+          return
+        } else if (!this.pwd) {
+          // 密码必须有
+          this.showAlert('密码必须有')
+          return
+        } else if (!this.captcha) {
+          // 验证码必须有
+          this.showAlert('验证码必须有')
+          return
+        }
+        result = await reqPwdLogin({name, pwd, captcha})
+      }
+      // 停止计时
+      if (this.computeTime) {
+        this.computeTime = 0
+        clearInterval(this.intervalId)
+        this.intervalId = undefined
+      }
+      if (result.code === 0) {
+        const user = result.data
+        // 将user保存到vuex的state
+        this.$store.dispatch('recordUser', user)
+        // 去个人中心界面
+        this.$router.replace('/profile')
+      } else {
+        // 显示新的图片验证码
+        this.getCaptcha()
+        // 显示警告提示
+        const msg = result.msg
+        this.showAlert(msg)
       }
     },
-    methods: {
-      //异步获取短信验证码
-      getCode() {
-        //启动倒计时
-        if (this.computeTime===0){
-          this.computeTime=30
-          const intervalId = setInterval(()=> {
-            this.computeTime--
-            if(this.computeTime<=0){
-              clearInterval(intervalId)
-            }
-          },1000)
-          //发送ajax请求   向指定手机号发送验证码短信
-        }
-      
-      },
-      closeTip() {
-        this.alertShow = false
-        this.alertText = ''
-      },
-      showAlert(alertText) {
-        this.alertShow = true
-        this.alertText = alertText
-      },
-      //异步登录
-      login() {
-        //前台表单验证
-        if(this.loginWay){//短信登陆
-          const {rightPhone,phone,code} = this
-          if(!this.rightPhone){
-            //提示手机号不正确
-            this.showAlert('手机号不正确')
-          }else if(!/^\d{6}$/.test(code)) {
-            //提示验证码不正确
-            this.showAlert('验证码不正确')
-          }
-        }else {//密码登陆
-          const {name,pwd,captcha} = this
-          if (!this.name){
-            //提示用户名必须有
-            this.showAlert('提示用户名必须有')
-          } else if (!this.pwd){
-            //密码必须有
-            this.showAlert('密码必须有')
-          }else if (!this.captcha){
-            //验证码必须有
-            this.showAlert('验证码必须有')
-          }
-          
-        }
-        
-      }
+    getCaptcha () {
+      this.$refs.captcha.src = 'http://localhost:4000/captcha?time=' + Date.now()
     }
   }
+}
 </script>
 
 <style lang="stylus" rel="stylesheet/stylus">
@@ -219,7 +257,7 @@
                 &.off
                   background #fff
                   .switch_text
-                    float right
+                    float left
                     color #ddd
                 &.on
                   background #02a774

@@ -10,12 +10,12 @@
 </template>
 
 <script>
-  export default {
-    name: 'HeaderTop',
-    props: {
-      title: String
-    }
+export default {
+  name: 'HeaderTop',
+  props: {
+    title: String
   }
+}
 </script>
 
 <style lang="stylus" rel="stylesheet/stylus">

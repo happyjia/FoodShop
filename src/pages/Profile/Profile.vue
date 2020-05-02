@@ -19,7 +19,6 @@
               <i class="iconfont icon-jiantou1"></i>
             </span>
       </router-link>
-      
     </section>
     <section class="profile_info_data border-1px">
       <ul class="info_data_list">
@@ -93,11 +92,11 @@
 </template>
 
 <script>
-  import HeaderTop from '../../components/HeaderTop/HeaderTop'
-  export default {
-    name: 'Profile',
-    components: {HeaderTop}
-  }
+import HeaderTop from '../../components/HeaderTop/HeaderTop'
+export default {
+  name: 'Profile',
+  components: {HeaderTop}
+}
 </script>
 
 <style lang="stylus" rel="stylesheet/stylus">

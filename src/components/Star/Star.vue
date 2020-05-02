@@ -6,34 +6,34 @@
 </template>
 
 <script>
-  const CLASS_ON = 'on'
-  const CLASS_HALF = 'half'
-  const CLASS_OFF = 'off'
-  export default {
-    name: 'Star',
-    props: {
-      score: Number,
-      size: Number,
-    },
-    computed: {
-      starClasses () {
-        const {score} = this
-        const scs = []
-        //向scs中添加n个CLASS_ON   0或1个CLASS_HALF   n个CLASS_OFF
-        const scoreInteger = Math.floor(score)
-        for (let i=0;i<scoreInteger;i++){
-          scs.push(CLASS_ON)
-        }
-        if (score-scoreInteger>0.5){
-          scs.push(CLASS_HALF)
-        }
-        while (scs.length<5){
-          scs.push(CLASS_OFF)
-        }
-        return scs
+const CLASS_ON = 'on'
+const CLASS_HALF = 'half'
+const CLASS_OFF = 'off'
+export default {
+  name: 'Star',
+  props: {
+    score: Number,
+    size: Number
+  },
+  computed: {
+    starClasses () {
+      const {score} = this
+      const scs = []
+      // 向scs中添加n个CLASS_ON   0或1个CLASS_HALF   n个CLASS_OFF
+      const scoreInteger = Math.floor(score)
+      for (let i = 0; i < scoreInteger; i++) {
+        scs.push(CLASS_ON)
       }
+      if (score - scoreInteger > 0.5) {
+        scs.push(CLASS_HALF)
+      }
+      while (scs.length < 5) {
+        scs.push(CLASS_OFF)
+      }
+      return scs
     }
   }
+}
 </script>
 
 <style lang="stylus" rel="stylesheet/stylus">

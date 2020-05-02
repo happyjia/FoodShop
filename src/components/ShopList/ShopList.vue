@@ -48,20 +48,19 @@
 </template>
 
 <script>
-  import {mapState} from 'vuex'
-  import Star from '../Star/Star'
-  export default {
-    name: 'ShopList',
-    components: {Star},
-    computed:{
-      ...mapState(['shops'])
-    },
-    data() {
-      return{
-        baseImageUrl: 'http://cangdu.org:8001/img/'
-      }
-    },
+import {mapState} from 'vuex'
+import Star from '../Star/Star'
+export default {
+  name: 'ShopList',
+  components: {Star},
+  computed: {
+    ...mapState(['shops'])
+  },
+  data () {
+    return {baseImageUrl: 'http://cangdu.org:8001/img/'
+    }
   }
+}
 </script>
 
 <style lang="stylus" rel="stylesheet/stylus">

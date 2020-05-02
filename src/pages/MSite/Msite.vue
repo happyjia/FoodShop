@@ -39,62 +39,60 @@
 </template>
 
 <script>
-  import {mapState} from 'vuex'
-  import Swiper from 'swiper'
-  import 'swiper/dist/css/swiper.min.css'
-  import HeaderTop from '../../components/HeaderTop/HeaderTop'
-  import ShopList from '../../components/ShopList/ShopList'
-  export default {
-    name: 'Msite',
-    components: {ShopList, HeaderTop},
-    data() {
-      return {
-        baseImageUrl: 'https://fuss10.elemecdn.com'
-      }
-    },
-    mounted () {
-      this.$store.dispatch('getCategorys')
-      this.$store.dispatch('getShops')
-    },
-    watch: {
-      categorys(value) {   //categorys数组中有数据了
-        
-        //界面更新就立即创建Swiper对象
-        this.$nextTick(()=>{  //一旦界面更新，立即调用
-          //创建一个Swiper实例对象
-          new Swiper('.swiper-container',{
-            loop: true, // 循环模式选项
-            pagination: {
-              el: '.swiper-pagination',
-            },
-          })
-        })
-      }
-    },
-    computed: {
-      ...mapState(['address','categorys']),
-      
-      //根据categorys一维数组生成一个二维数组
-      //小数组中的元素个数最大是8
-      categorysArr () {
-        const {categorys} = this
-        //准备一个空的二维数组
-        const arr = []
-        let minArr = []
-        //遍历categorys
-        categorys.forEach(c => {
-          if (minArr.length===8){
-            minArr = []
-          }
-          if (minArr.length===0){
-            arr.push(minArr)
-          }
-          minArr.push(c)
-        })
-        return arr
-      }
-    },
+import {mapState} from 'vuex'
+import Swiper from 'swiper'
+import 'swiper/dist/css/swiper.min.css'
+import HeaderTop from '../../components/HeaderTop/HeaderTop'
+import ShopList from '../../components/ShopList/ShopList'
+export default {
+  name: 'Msite',
+  components: {ShopList, HeaderTop},
+  data () {
+    return {
+      baseImageUrl: 'https://fuss10.elemecdn.com'
+    }
+  },
+  mounted () {
+    // 发请求获取数据显示
+    this.$store.dispatch('getCategorys')
+    this.$store.dispatch('getShops')
+  },
+  watch: {categorys (value) { // categorys数组中有数据了
+  // 界面更新就立即创建Swiper对象
+    this.$nextTick(() => { // 一旦界面更新，立即调用
+    // 创建一个Swiper实例对象
+      new Swiper('.swiper-container', {
+        loop: true, // 循环模式选项
+        pagination: {
+          el: '.swiper-pagination'
+        }
+      })
+    })
+  }},
+  computed: {
+    ...mapState(['address', 'categorys']),
+
+    // 根据categorys一维数组生成一个二维数组
+    // 小数组中的元素个数最大是8
+    categorysArr () {
+      const {categorys} = this
+      // 准备一个空的二维数组
+      const arr = []
+      let minArr = []
+      // 遍历categorys
+      categorys.forEach(c => {
+        if (minArr.length === 8) {
+          minArr = []
+        }
+        if (minArr.length === 0) {
+          arr.push(minArr)
+        }
+        minArr.push(c)
+      })
+      return arr
+    }
   }
+}
 </script>
 
 <style lang="stylus" rel="stylesheet/stylus">
